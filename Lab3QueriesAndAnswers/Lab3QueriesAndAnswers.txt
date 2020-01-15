@@ -1,0 +1,303 @@
+Namn: Andreas Zachrisson
+
+Task 1
+
+FRÅGA 1. Skapa en databas vid namn citydb.
+	> use citydb
+	switched to db citydb
+
+FRÅGA 2. Sätt in följande dokument i en kollektion med namn: cities
+			a. _id:1, name: Stockholm, population: 1372565
+			b. _id:2, name: Göteborg, population: 549839
+			c. _id:3, name: Malmö, population: 280415
+			d. _id:4, name: Uppsala, population: 140454
+			e. _id:5, name: Västerås, population: 110877
+QUERY:			
+	> db.citydb.insert([
+... {
+... _id: 1,
+... name: 'Stockholm',
+... population: 1372565
+... },
+... {
+...
+... _id: 2,
+... name: 'Göteborg',
+... population: 549839
+... },
+... {
+... _id: 3,
+... name: 'Malmö',
+... population: 280415
+... },
+... {
+... _id: 4,
+... name: 'Uppsala',
+... population: 140454
+... },
+... {
+... _id: 5,
+... name: 'Västerås',
+... population: 110877
+... }])
+
+RESULT:
+	BulkWriteResult({
+        "writeErrors" : [ ],
+        "writeConcernErrors" : [ ],
+        "nInserted" : 5,
+        "nUpserted" : 0,
+        "nMatched" : 0,
+        "nModified" : 0,
+        "nRemoved" : 0,
+        "upserted" : [ ]
+})
+
+FRÅGA 3. Hitta ett dokument där namnet är “Malmö” och visa bara “namn” och “population”.
+QUERY:
+	> db.citydb.find({"name":"Malmö"}, {_id:0})
+RESULT:
+	{ "name" : "Malmö", "population" : 280415 }
+
+FRÅGA 4. Uppdatera dokumentet som har “namn” “Göteborg” med “population” 549890
+QUERY:
+	> db.citydb.update({'name':'Göteborg'}, {$set:{'population':589890}})
+RESULT:
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	
+FRÅGA 5. Ta bort dokumentet med _id:4
+QUERY:
+	> db.citydb.remove({_id:4})
+RESULT:
+	WriteResult({ "nRemoved" : 1 })
+	
+FRÅGA 6. Uppdatera dokumentet som har “namn” “Västerås” och öka (med increment)
+		 ”population” fält så att det blir 110879. (increment by 2)
+QUERY:
+	> db.citydb.update({'name':'Västerås'}, {$inc:{'population':2}})
+RESULT:
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	
+FRÅGA 7. Lägg till ett fält “country” och värdet “Sweden” till alla dokument.
+QUERY:
+	> db.citydb.update({}, {$set:{'country':'Sweden'}}, {multi:1})
+RESULT:
+	WriteResult({ "nMatched" : 4, "nUpserted" : 0, "nModified" : 4 })
+	
+FRÅGA 8. Byt namn på fältet “country” till “Country”.
+QUERY:
+	> db.citydb.update({}, {$rename:{'country':'Country'}}, {multi:1})
+RESULT:
+	WriteResult({ "nMatched" : 4, "nUpserted" : 0, "nModified" : 4 })
+
+TASK 2.
+
+FRÅGA 9. Skapa en databas vid namn animalsdb, och FRÅGA 10. Gå till databasen animalsdb.
+QUERY:
+	> use animalsdb
+RESULT:
+	switched to db animalsdb
+	
+FRÅGA 11. Skriv i mongo-skalet : load ("animals.js"). Vad gör den raden? Visa resultatet.
+QUERY:
+	> load("animals.js")
+RESULT:
+	true 
+	(Skapar en collection vid namn "animals")
+	
+FRÅGA 12. Hitta alla data från collection animals.
+QUERY:
+	> db.animals.find({})
+RESULT:
+{ "_id" : ObjectId("5e08c24a6efab6d2da58ee81"), "name" : "Elephant", "color" : "grey", "weight" : 7000, "has_tusks" : true, "data" : [ "mammal", "herbivore", "live in groups" ], "found_in" : [ "sub-Saharan Africa", "South Asia", "Southeast Asia" ] }
+osv.
+
+FRÅGA 13. Hitta hur många djur det finns totalt i databasen animals?
+QUERY:
+	> db.animals.count({})
+RESULT:
+	16
+	
+FRÅGA 14. Lägg till en array “favorit_food” med “blueberry, honey och ants” för “Bear” .
+QUERY:
+	> db.animals.update({'name':'Bear'}, {$set:{'favorite_food':['blueberry','honey','ants']}})
+RESULT:
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	
+FRÅGA 15. Ta bort ants och honey från arrayen “favorit_food” och “rounded ears” från arrayen “data” för “Bear”.
+QUERY:
+	> db.animals.update({'name':'Bear'}, {$pull:{favorite_food: {$in:['ants','honey']}, data: 'rounded ears'}}, {multi:true})
+RESULT:
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	
+FRÅGA 16.  Hitta hur många gula djur det finns i kollektionen.
+QUERY:
+	> db.animals.count({'color':'yellow'})
+RESULT:
+	2
+	
+FRÅGA 17. Hitta alla namnet på alla djur vars färg är brun och som lever i Asien och visa deras namn, color och found_in .
+QUERY:
+	> db.animals.find({'color':'brown', 'found_in':/asia/i}, {'name':1, 'color':1, 'found_in':1, _id:0})
+RESULT:
+	{ "name" : "Bear", "color" : "brown", "found_in" : [ "North America", "South America", "Europe", "Asia" ] }
+	
+FRÅGA 18. Lägg till fältet “litter_size” med värdet “4-6-kits” för “Fox”.
+QUERY:
+	> db.animals.update({'name':'Fox'}, {$set:{'litter_size':'4-6-kits'}})
+RESULT:
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	
+FRÅGA 19. Lägg till ett fält med namn “likes meat” i arrayen “data” för alla med "order": "Carnivora" och som är gula till färgen.
+QUERY:
+	> db.animals.update({'order':'Carnivora', 'color':'yellow'}, {$push:{'data':'likes meat'}}, {multi:true})
+RESULT:
+	WriteResult({ "nMatched" : 2, "nUpserted" : 0, "nModified" : 2 })
+	
+FRÅGA 20. Gruppera efter färger och visa antal djur per färg. 
+QUERY:
+	> db.animals.aggregate({$group:{_id:'$color', count:{$sum:1}}})
+RESULT:
+	{ "_id" : "grey", "count" : 3 }
+	{ "_id" : "orange", "count" : 2 }
+	{ "_id" : "yellow", "count" : 2 }
+	{ "_id" : "brown", "count" : 5 }
+	{ "_id" : "gray", "count" : 1 }
+	{ "_id" : "black", "count" : 3 }
+	
+FRÅGA 21. Skriv ut antalet djur som väger mer än 100.
+QUERY:
+	> db.animals.find({'weight':{$gt:100}})
+RESULT:
+	{ "_id" : ObjectId("5e09da0dee21219ef149be69"), "name" : "Elephant", "color" : "grey", "weight" : 7000, "has_tusks" : true, "data" : [ "mammal", "herbivore", "live in groups" ], "found_in" : [ "sub-Saharan Africa", "South Asia", "Southeast Asia" ] }
+	osv.
+	
+FRÅGA 22.  Skriv ut djur med “order” “Carnivora”, sorterat efter weight i fallande ordning.
+QUERY:
+	> db.animals.find({'order':'Carnivora'}).sort({'weight':-1})
+RESULT:
+	{ "_id" : ObjectId("5e09da0dee21219ef149be6d"), "name" : "Bear", "color" : "brown", "weight" : 505, "found_in" : [ "North America", "South America", "Europe", "Asia" ], "class" : "Mammalia", "order" : "Carnivora", "suborder" : "Caniformia", "family" : "Ursidae", "data" : [ "mammal", "carnivore", "nonretractile claws", "rounded ears", "can stand on its rear legs" ] }
+	{ "_id" : ObjectId("5e09da0dee21219ef149be76"), "name" : "Lion", "color" : "yellow", "weight" : 200, "class" : "Mammalia", "order" : "Carnivora", "family" : "Felidae", "subfamily" : "Pantherinae", "suborder" : "Feliformia", "data" : [ "live in groups", "carnivore", "smaller than tigers", "protractible claws", "likes meat" ] }
+	osv.
+	
+FRÅGA 23.  Hitta alla dokument som har “mammal” eller "carnivore" i deras “data” fält.
+QUERY:
+	> db.animals.find({$or:[{'data':'mammal'},{'data':'carnivore'}]})
+RESULT:
+	{ "_id" : ObjectId("5e09da0dee21219ef149be69"), "name" : "Elephant", "color" : "grey", "weight" : 7000, "has_tusks" : true, "data" : [ "mammal", "herbivore", "live in groups" ], "found_in" : [ "sub-Saharan Africa", "South Asia", "Southeast Asia" ] }
+	{ "_id" : ObjectId("5e09da0dee21219ef149be6a"), "name" : "Elk", "color" : "brown", "weight" : 395, "min_weight_male" : 320, "max_weight_male" : 475, "min_weight_female" : 275, "max_weight_female" : 375, "has_antlers" : true, "data" : [ "mammal", "deer family", "herbivore" ], "found_in" : [ "Canada", "Alaska", "New England", "Scandinavia", "Latvia", "Estonia", "Russia" ] }
+	osv.
+	
+FRÅGA 24. Hitta alla dokument som har “mammal” och "carnivore" i deras “data” fält.
+QUERY:
+	> db.animals.find({$and:[{'data':'mammal'},{'data':'carnivore'}]})
+RESULT:
+	{ "_id" : ObjectId("5e09da0dee21219ef149be6c"), "name" : "Wolf", "class" : "Mammalia", "order" : "Carnivora", "suborder" : "Caniformia", "color" : "grey", "weight" : 44, "min_weight_male" : 43, "max_weight_male" : 45, "min_weight_female" : 36, "max_weight_female" : 38.5, "found_in" : [ "Eurasia", "North America" ], "data" : [ "mammal", "carnivore", "canid", "live in groups" ] }
+	{ "_id" : ObjectId("5e09da0dee21219ef149be6d"), "name" : "Bear", "color" : "brown", "weight" : 505, "found_in" : [ "North America", "South America", "Europe", "Asia" ], "class" : "Mammalia", "order" : "Carnivora", "suborder" : "Caniformia", "family" : "Ursidae", "data" : [ "mammal", "carnivore", "nonretractile claws", "rounded ears", "can stand on its rear legs" ] }
+	{ "_id" : ObjectId("5e09da0dee21219ef149be6e"), "name" : "Hyena", "family" : "Hyaenidae", "suborder" : "Feliformia", "order" : "Carnivora", "color" : "brown", "weight" : 47, "min_weight_male" : 40.5, "max_weight_male" : 55, "min_weight_female" : 44.5, "max_weight_female" : 63.9, "spotted" : true, "data" : [ "mammal", "carnivore", "live in groups" ] }
+
+TASK 3.
+
+FRÅGA 25.  Sätt in följande record i kollektion orders: - (SE KOMMENTARER I QUERY, line 255, line 256.)
+QUERY:
+	> db.orders.insert([
+... {
+... "Id": 100,
+... "Name": "Eva",
+... "Subscriber": true,
+... "Payment":
+... {
+... "Type": "Credit-Card",
+... "Total": 400,
+... "Success": true
+... },
+... "Note": "1st Complete Record"
+... },
+... {
+... "Id": 101,
+... "Name": "Johan",
+... "Subscriber": true,
+... "Payment":
+... {
+... "Type": "Debit-Card",
+... "Total": 500,
+... "Success": true
+... },
+... "Note":null
+... },
+... {
+... "Id": 102,
+... "Name": "Matilda",
+... "Subscriber": true,
+... "Payment":
+... {
+... "Type": "Credit-Card",
+... "Total": 700,
+... "Success": false
+... }
+... },
+... {
+... "Id": 103,
+... "Name": "Mikael",
+... "Subscriber": false,
+... "Payment": null,
+... "Note": "Payment is Null"
+... },
+... {
+... "Id": 104,
+... "Name": "Rikard",
+... "Subscriber": false,
+... "Payment":
+... {
+... "Type": "Debit-Card",
+... "Total": 300,
+... "Success": false
+... }, // Detta kommatecken fattades i orginalkoden från instruktionerna.
+... "Note": "Completed Payment" // Sista citattecknet (Det efter "t" i payment) fattades i orginalkoden från instruktionerna.
+... }])
+RESULT:
+	BulkWriteResult({
+        "writeErrors" : [ ],
+        "writeConcernErrors" : [ ],
+        "nInserted" : 5,
+        "nUpserted" : 0,
+        "nMatched" : 0,
+        "nModified" : 0,
+        "nRemoved" : 0,
+        "upserted" : [ ]
+})
+
+FRÅGA 26. Hitta alla dokument där fältet “Note” är “null” eller saknas .
+QUERY:
+	> db.orders.find({$or:[{'Note':null}, {'Note': {'$exists': false}}]})
+RESULT:
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7dd"), "Id" : 101, "Name" : "Johan", "Subscriber" : true, "Payment" : { "Type" : "Debit-Card", "Total" : 500, "Success" : true }, "Note" : null }
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7de"), "Id" : 102, "Name" : "Matilda", "Subscriber" : true, "Payment" : { "Type" : "Credit-Card", "Total" : 700, "Success" : false } }
+
+FRÅGA 27. Hitta alla dokument där fältet “Note” saknas.
+QUERY:
+	> db.orders.find({'Note': {'$exists': false}})
+RESULT:
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7de"), "Id" : 102, "Name" : "Matilda", "Subscriber" : true, "Payment" : { "Type" : "Credit-Card", "Total" : 700, "Success" : false } }
+	
+FRÅGA 28. Hitta alla dokument som har "Type": "Credit-Card" sorterat efter “Total” i stigande ordning
+QUERY:
+	> db.orders.find({'Payment.Type':'Credit-Card'}).sort({'Payment.Total':1})
+RESULT:
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7dc"), "Id" : 100, "Name" : "Eva", "Subscriber" : true, "Payment" : { "Type" : "Credit-Card", "Total" : 400, "Success" : true }, "Note" : "1st Complete Record" }
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7de"), "Id" : 102, "Name" : "Matilda", "Subscriber" : true, "Payment" : { "Type" : "Credit-Card", "Total" : 700, "Success" : false } }
+
+FRÅGA 29. Sortera all dokument efter Total i fallande ordning och visa bara dokument 2 och 3
+QUERY:
+	> db.orders.find({}).sort({'Payment.Total':-1}).skip(1).limit(2)
+RESULT:
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7dd"), "Id" : 101, "Name" : "Johan", "Subscriber" : true, "Payment" : { "Type" : "Debit-Card", "Total" : 500, "Success" : true }, "Note" : null }
+	{ "_id" : ObjectId("5e09ed26f68291bdbc50e7dc"), "Id" : 100, "Name" : "Eva", "Subscriber" : true, "Payment" : { "Type" : "Credit-Card", "Total" : 400, "Success" : true }, "Note" : "1st Complete Record" }
+
+FRÅGA 30. Aggregera “Success” och visa antal i fallande ordning. (Hur många “Success” är “true” och hur många är “false”).
+QUERY:
+	> db.orders.aggregate([{'$match':{'Payment.Success': {$ne:null}}},{'$group': {'_id':'$Payment.Success', 'Count': {$sum:1}}}, {$sort:{'Count':-1}}])
+RESULT:
+	{ "_id" : true, "Count" : 2 }
+	{ "_id" : false, "Count" : 2 }
+	
